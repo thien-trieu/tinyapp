@@ -30,6 +30,20 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//Generate random short URL ID
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateRandomString() {
+  let result = "";
+  const length = 6;
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
