@@ -52,7 +52,6 @@ app.get("/urls/new", (req, res) => {
 // submit form for new shortURL then get redirected to /urls/shortId path
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-
   const shortId = generateRandomString();
   urlDatabase[shortId] = req.body.longURL;
   res.redirect(`/urls/${shortId}`);
@@ -73,9 +72,7 @@ app.post('/urls/:id', (req, res) => {
 
 // shortId path
 app.get("/urls/:id", (req, res) => {
-
   // console.log(req)
-
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
