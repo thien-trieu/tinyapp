@@ -44,10 +44,12 @@ function generateRandomString() {
   return result;
 }
 
+// where form is for creating new shortURL
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// submit form for new shortURL then get redirected to /urls/shortId path
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
 
@@ -58,13 +60,16 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortId}`); 
 });
 
+// shortId path
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
+// if you click on shortId on the page, you then get redirected to the longURL 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
+
   res.redirect(longURL);
 });
 
