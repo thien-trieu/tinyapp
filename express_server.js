@@ -28,7 +28,11 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
+
   res.render("urls_index", templateVars);
 });
 
@@ -48,7 +52,11 @@ function generateRandomString() {
 
 // where form is for creating new shortURL
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  
+  res.render("urls_new", templateVars);
 });
 
 // submit form for new shortURL then get redirected to /urls/shortId path
@@ -73,17 +81,26 @@ app.post('/urls/:id', (req, res) => {
 
 
 app.post('/login', (req,res) =>{
-  // console.log(req.body.username)
+
   res.cookie('username', req.body.username)
-  // req.cookies.username = req.body.username
-  // console.log(req.cookies)
+  console.log('req.cookies', req.cookies["username"])
+  res.redirect('/urls/')
+})
+
+app.post('/logout', (req, res) =>{
+  res.clearCookie('username', req.body.username)
   res.redirect('/urls/')
 })
 
 // shortId path
 app.get("/urls/:id", (req, res) => {
-  // console.log(req)
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies["username"]
+   };
+
   res.render("urls_show", templateVars);
 });
 
