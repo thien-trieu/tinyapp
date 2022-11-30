@@ -1,7 +1,7 @@
 const express = require("express");
-const app = express();
 const cookieParser = require('cookie-parser')
-const PORT = 8080; // default port 8080
+const app = express();
+const PORT = 8080; 
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -12,7 +12,13 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const usersDatabase = {}
+const usersDatabase = {
+  abc: {
+    id: 'abc',
+    email: 'a@a.com',
+    password: '1234'
+  }
+}
 
 //Generate random short URL ID
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -26,7 +32,7 @@ function generateRandomString() {
   }
   return result;
 }
-
+//returns null if user does not exist, returns user object if found
 const getUserByEmail = (email) => {
   let result = null
   for (let ids in usersDatabase){
@@ -68,19 +74,19 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const randomId = generateRandomString()
+  const id = generateRandomString()
   const email = req.body.email
   const password = req.body.password
-  const checkEmail = getUserByEmail(email)
+  const user = getUserByEmail(email)
 
 
-  if (email === "" || password === "") {
+  if (!email || !password) {
     return res
     .status(400)
     .send('Error: You did not enter your email/password to register')
   } 
   
-  if (checkEmail !== null) {
+  if (user !== null) {
     return res
     .status(400)
     .send('Error: Email already exist')
@@ -88,9 +94,9 @@ app.post("/register", (req, res) => {
   } 
 
   // adding user info to userDatabase
-  usersDatabase[randomId] = {id: randomId, email: email, password: password}
+  usersDatabase[id] = {id: id, email: email, password: password}
   // storing user_id in cookie
-  res.cookie('user_id', randomId)
+  res.cookie('user_id', id)
   res.redirect('/urls')
   
 })
@@ -133,8 +139,26 @@ app.post('/urls/:id', (req, res) => {
 
 
 app.post('/login', (req,res) =>{
-  res.cookie('username', req.body.username)
+  const email = req.body.email
+  const password = req.body.password
 
+  console.log('email:', email, 'Password:', password)
+
+  let user = getUserByEmail(email)
+
+  console.log('user', user)
+
+  if (!user){
+   return res.status(403).send('Error: Email does not exist, please try again!')
+  }
+
+  if (user.password !== password){
+    return res.status(403).send('Error: Password is incorrect, please try again!')
+  }
+
+  console.log('user_id:', user.id)
+  // then set the cookie
+  res.cookie('user_id', user.id)
   res.redirect('/urls/')
 })
 
