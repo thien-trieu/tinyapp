@@ -69,6 +69,11 @@ app.get("/register", (req, res) => {
     user: usersDatabase[req.cookies.user_id]
   };
 
+  // if user is logged in, redirect user
+  if (req.cookies.user_id){
+    return res.redirect('urls')
+  }
+
   res.render("register", templateVars)
 });
 
@@ -104,6 +109,12 @@ app.get("/login", (req, res) => {
   const templateVars = {
     user: usersDatabase[req.cookies.user_id]
   };
+
+  // if user is logged in, redirect user
+  if (req.cookies.user_id){
+    return res.redirect('urls')
+  }
+  
 
   res.render("login", templateVars);
 })
