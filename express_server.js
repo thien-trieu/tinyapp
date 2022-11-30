@@ -111,7 +111,7 @@ app.get("/login", (req, res) => {
   };
 
   // if user is logged in, redirect user
-  if (req.cookies.user_id){
+  if (req.cookies.user_id) {
     return res.redirect('/urls')
   }
   
@@ -127,7 +127,7 @@ app.get("/urls/new", (req, res) => {
   if (!req.cookies.user_id){
     return res.redirect('/login')
   }
-  
+
   res.render("urls_new", templateVars);
 });
 
@@ -139,6 +139,7 @@ app.post("/urls", (req, res) => {
   if (!req.cookies.user_id){
     return res.send('Sorry you are not logged in. Please login to create new short URL')
   }
+
 
   res.redirect(`/urls/${shortId}`);
 });
@@ -160,11 +161,8 @@ app.post('/login', (req,res) =>{
   const email = req.body.email
   const password = req.body.password
 
-  console.log('email:', email, 'Password:', password)
-
   let user = getUserByEmail(email)
 
-  console.log('user', user)
 
   if (!user){
    return res.status(403).send('Error: Email does not exist, please try again!')
@@ -174,14 +172,16 @@ app.post('/login', (req,res) =>{
     return res.status(403).send('Error: Password is incorrect, please try again!')
   }
 
-  console.log('user_id:', user.id)
   // then set the cookie
   res.cookie('user_id', user.id)
   res.redirect('/urls/')
 })
 
 app.post('/logout', (req, res) =>{
-  res.clearCookie('user_id', req.body.user_id)
+
+  console.log('logout', req.body)
+
+  res.clearCookie('user_id')
   res.redirect('/login')
 })
 
@@ -194,12 +194,21 @@ app.get("/urls/:id", (req, res) => {
     user: usersDatabase[req.cookies.user_id]
    };
 
+  if (!urlDatabase[req.params.id]){
+    return res.send("The Short URL ID does not exist! Please try again.")
+  }
+
   res.render("urls_show", templateVars);
 });
 
 // if you click on shortId on the page, you then get redirected to the longURL 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+
+  if (!urlDatabase[req.params.id]){
+    return res.send("The Short URL ID does not exist! Please try again.")
+  }
+
   res.redirect(longURL);
 });
 
