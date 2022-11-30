@@ -71,7 +71,7 @@ app.get("/register", (req, res) => {
 
   // if user is logged in, redirect user
   if (req.cookies.user_id){
-    return res.redirect('urls')
+    return res.redirect('/urls')
   }
 
   res.render("register", templateVars)
@@ -112,7 +112,7 @@ app.get("/login", (req, res) => {
 
   // if user is logged in, redirect user
   if (req.cookies.user_id){
-    return res.redirect('urls')
+    return res.redirect('/urls')
   }
   
 
@@ -123,6 +123,10 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: usersDatabase[req.cookies.user_id]
   };
+
+  if (!req.cookies.user_id){
+    return res.redirect('/login')
+  }
   
   res.render("urls_new", templateVars);
 });
@@ -131,6 +135,10 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortId = generateRandomString();
   urlDatabase[shortId] = req.body.longURL;
+
+  if (!req.cookies.user_id){
+    return res.send('Sorry you are not logged in. Please login to create new short URL')
+  }
 
   res.redirect(`/urls/${shortId}`);
 });
