@@ -73,18 +73,26 @@ app.post("/register", (req, res) => {
   const password = req.body.password
   const checkEmail = getUserByEmail(email)
 
-  if (email === "" || password === "" || checkEmail !== null){
-    res
+
+  if (email === "" || password === "") {
+    return res
     .status(400)
-    .send('Error: You did not enter your email/password to register or email already exist')
-  } else {
+    .send('Error: You did not enter your email/password to register')
+  } 
+  
+  if (checkEmail !== null) {
+    return res
+    .status(400)
+    .send('Error: Email already exist')
+    
+  } 
 
   // adding user info to userDatabase
   usersDatabase[randomId] = {id: randomId, email: email, password: password}
   // storing user_id in cookie
   res.cookie('user_id', randomId)
   res.redirect('/urls')
-  }
+  
 })
 
 
