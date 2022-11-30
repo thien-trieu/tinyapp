@@ -95,7 +95,13 @@ app.post("/register", (req, res) => {
   
 })
 
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: usersDatabase[req.cookies.user_id]
+  };
 
+  res.render("login", templateVars);
+})
 // where form is for creating new shortURL
 app.get("/urls/new", (req, res) => {
   const templateVars = {

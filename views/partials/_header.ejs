@@ -27,18 +27,12 @@
           </form>
         </p>
       <% } else {%>
-       
-          <form method="POST" action="/login">
-            <input
-              type="text"
-              name="username"
-              placeholder="username">
-            <button 
-              type="submit" 
-              class="btn btn-outline-dark" 
-              style='margin-right:16px'>Login</button>
-          </form>
-    
+    <div id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="/login">Login</a>
+      </div>
+    </div>   
       <% }%>
 
   </nav>
