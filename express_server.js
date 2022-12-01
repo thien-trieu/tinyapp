@@ -1,6 +1,7 @@
 const express = require("express");
-const cookieParser = require('cookie-parser')
-const morgan = require("morgan")
+const cookieSession = require('cookie-session');
+// const cookieParser = require('cookie-parser');
+const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 
 const app = express();
