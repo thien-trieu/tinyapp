@@ -47,6 +47,7 @@ function generateRandomString() {
   }
   return result;
 }
+
 //returns null if user does not exist, returns user object if found
 const getUserByEmail = (email) => {
   let result = null
@@ -127,7 +128,11 @@ app.post("/register", (req, res) => {
   } 
 
   // adding user info to userDatabase
-  usersDatabase[id] = {id: id, email: email, password: password}
+  usersDatabase[id] = {
+    id: id, 
+    email: email, 
+    password: password
+  }
 
   // storing user_id in cookie
   res.cookie('user_id', id)
@@ -172,23 +177,58 @@ app.post("/urls", (req, res) => {
     return res.send('Sorry you are not logged in. Please login to create new short URL')
   }
 
-
   res.redirect(`/urls/${shortId}`);
 });
 
 
 app.post('/urls/:id/delete', (req, res) => {
-  delete urlDatabase[req.params.id];
+  const userUrls = urlsForUser(req.cookies.user_id)
+  const id = req.params.id
+  const userId = req.cookies.user_id
+
+  // should return a relevant error message if id does not exist
+  if (urlDatabase[id] === undefined){
+    return res.send("Sorry, the URL you are trying to delete does not exist :(")
+  }
+
+  // should return a relevant error message if the user is not logged in
+  if (!req.cookies.user_id) {
+    return res.send("Sorry, you can not delete a URL if you are not logged in :(")
+  }
+
+  // should return a relevant error message if the user does not own the URL
+  if (userUrls[id].userID !== userId){
+    return res.send('Sorry, you can not delete a URL that you do not own :(')
+  }
+
+  delete urlDatabase[id];
   res.redirect("/urls/");
 });
 
 // edit shortURL with a different longURL
 app.post('/urls/:id', (req, res) => {
+  const userUrls = urlsForUser(req.cookies.user_id)
+  const id = req.params.id
+  const userId = req.cookies.user_id
 
-  // Neeed think more
-  urlDatabase[req.params.id] = {
+  // should return a relevant error message if id does not exist
+  if (urlDatabase[id] === undefined){
+    return res.send("Sorry, the short URL you are trying to edit does not exist")
+  }
+
+  // should return a relevant error message if the user is not logged in
+  if (!req.cookies.user_id) {
+    return res.send("Sorry, you can not edit a URL if you are not logged in")
+  }
+
+  // should return a relevant error message if the user does not own the URL
+  if (userUrls[id].userID !== userId){
+    return res.send('Sorry you can not edit this page')
+  }
+
+  urlDatabase[id] = {
     longURL: req.body.longURL,
-    userID: req.cookies.user_id
+    userID: userId
   };
 
   res.redirect("/urls/");
@@ -201,7 +241,6 @@ app.post('/login', (req,res) =>{
 
   let user = getUserByEmail(email)
 
-
   if (!user){
    return res.status(403).send('Error: Email does not exist, please try again!')
   }
@@ -210,15 +249,11 @@ app.post('/login', (req,res) =>{
     return res.status(403).send('Error: Password is incorrect, please try again!')
   }
 
-  // then set the cookie
   res.cookie('user_id', user.id)
   res.redirect('/urls/')
 })
 
 app.post('/logout', (req, res) =>{
-
-  console.log('logout', req.body)
-
   res.clearCookie('user_id')
   res.redirect('/login')
 })
