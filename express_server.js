@@ -2,7 +2,7 @@ const express = require("express");
 const cookieSession = require('cookie-session');
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
-const getUserByEmail = require("./helpers.js");
+const { getUserByEmail } = require('./helpers.js');
 
 const app = express();
 const PORT = 8080;
@@ -118,7 +118,7 @@ app.post("/register", (req, res) => {
   }
   
   // can not register with an existing email
-  if (user !== null) {
+  if (user !== undefined) {
     return res
       .status(400)
       .send('Unable to complete registration. The email you entered already exist. Please log in if you are already registered or try your email again.');
@@ -156,6 +156,7 @@ app.get("/urls/new", (req, res) => {
     user: usersDatabase[req.session.user_id]
   };
 
+  // user can not view page if they are not logged in
   if (!req.session.user_id) {
     return res.redirect('/login');
   }
@@ -163,7 +164,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// submit form for new shortURL then get redirected to /urls/shortId path
 app.post("/urls", (req, res) => {
   const shortId = generateRandomString();
   urlDatabase[shortId] = {
@@ -171,6 +171,7 @@ app.post("/urls", (req, res) => {
     userID: req.session.user_id
   };
 
+  // must be logged in to create a new short URL
   if (!req.session.user_id) {
     return res.send('Sorry you are not logged in. Please login to create new short URL');
   }
@@ -254,12 +255,6 @@ app.post('/login', (req,res) =>{
   const hashedPassword = usersDatabase[userId].password;
   const passwordWorks = bcrypt.compareSync(password, hashedPassword);
   
-  // console.log('pw', password)
-  // console.log('pw works:', passwordWorks)
-  // console.log('hashed pw:', hashedPassword)
-  // console.log('user db:', usersDatabase)
-  // console.log('user', user)
-  
   // check if password user password is correct
   if (!passwordWorks) {
     return res.status(403).send('Unable to log in. The password you entered is incorrect, please try again.');
@@ -271,7 +266,7 @@ app.post('/login', (req,res) =>{
 });
 
 app.post('/logout', (req, res) =>{
-
+  // cookie session is destroyed
   req.session = null;
   res.redirect('/login');
 });
@@ -280,14 +275,17 @@ app.get("/urls/:id", (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
   const id = req.params.id;
 
+  // user must be logged in to view urls
   if (!req.session.user_id) {
     return res.send("You must be logged in to view this page.");
   }
 
+  // error message if user tries to view a url that does not exist
   if (!urlDatabase[req.params.id]) {
     return res.send("The Short URL ID does not exist! Please try again.");
   }
 
+  // can not view a short url that does not belong to user
   if (userUrls[id] === undefined) {
     return res.send("This short URL does not belong to you.");
   }
@@ -301,19 +299,22 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// if you click on shortId on the page, you then get redirected to the longURL
+
 app.get("/u/:id", (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
   const id = req.params.id;
 
+    // user must be logged in to view urls
   if (!req.session.user_id) {
     return res.send("You must be logged in to view this page :(");
   }
 
+  // error message if user tries to view a url that does not exist
   if (!urlDatabase[req.params.id]) {
     return res.send("The Short URL ID does not exist! Please try again.");
   }
 
+  // can not view a short url that does not belong to user
   if (userUrls[id] === undefined) {
     return res.send("This short URL does not belong to you :(");
   }

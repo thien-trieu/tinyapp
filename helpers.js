@@ -1,6 +1,6 @@
-// returns null if user does not exist, returns user object if found.
+// returns undefined if user does not exist, returns user object if found.
 const getUserByEmail = (email, database) => {
-  let result = null
+  let result = undefined
   for (let ids in database){
     if (email === database[ids].email) {
       result = database[ids]
@@ -9,4 +9,4 @@ const getUserByEmail = (email, database) => {
   return result
 }
 
-module.exports = getUserByEmail;
+module.exports = { getUserByEmail };
