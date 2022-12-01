@@ -240,7 +240,7 @@ app.post('/login', (req,res) =>{
   const password = req.body.password;
   const user = getUserByEmail(email, usersDatabase);
 
-  // must enter a email and password to login
+  // must enter a email and password to login, can not leave empty
   if (!email || !password) {
     return res
       .status(400)
