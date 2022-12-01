@@ -49,17 +49,6 @@ const generateRandomString = () => {
   return result;
 };
 
-// returns null if user does not exist, returns user object if found.
-// const getUserByEmail = (email, database) => {
-//   let result = null
-//   for (let ids in database){
-//     if (email === database[ids].email) {
-//       result = database[ids]
-//     }
-//   }
-//   return result
-// }
-
 // returns url database for specific user only. returns undefined if id is not found in urldatabase.
 const urlsForUser = (id) => {
   let obj = {};
