@@ -25,25 +25,16 @@ const urlDatabase = {
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "abc",
-  },
-  h4lkl5: {
-    longURL: "https://www.amazon.ca",
-    userID: "abc",
-  },
+    userID: "lbbg1M",
+  }
 };
 
 const usersDatabase = {
-  // abc: {
-  //   id: 'abc',
-  //   email: 'a@a.com',
-  //   password: '1234'
-  // },
-  // aJ48lW: {
-  //   id: 'aJ48lW',
-  //   email: 'b@b.com',
-  //   password: '1234'
-  // }
+  lbbg1M: {
+    id: 'lbbg1M',
+    email: 'hello@itsme.com',
+    password: '$2a$10$baVx1exxSjurnseSg/Bt/OdfA.gM2rHmYYNJg6nbnm1uFW0vW4.nW'
+  }
 }
 
 //Generate random short URL ID
@@ -59,12 +50,12 @@ function generateRandomString() {
   return result;
 }
 
-//returns null if user does not exist, returns user object if found
-const getUserByEmail = (email) => {
+// returns null if user does not exist, returns user object if found
+const getUserByEmail = (email, database) => {
   let result = null
-  for (let ids in usersDatabase){
-    if (email === usersDatabase[ids].email) {
-      result = usersDatabase[ids]
+  for (let ids in database){
+    if (email === database[ids].email) {
+      result = database[ids]
     } 
   }
   return result
@@ -102,6 +93,9 @@ app.get("/urls", (req, res) => {
     user: usersDatabase[req.session.user_id]
   };
 
+  console.log('user database:', usersDatabase)
+  console.log('url database:', urlDatabase)
+
   res.render("urls_index", templateVars);
 });
 
@@ -122,7 +116,7 @@ app.post("/register", (req, res) => {
   const id = generateRandomString()
   const email = req.body.email
   const password = req.body.password
-  const user = getUserByEmail(email)
+  const user = getUserByEmail(email, usersDatabase)
   const hashedPassword = bcrypt.hashSync(password, 10);
 
 
@@ -253,7 +247,7 @@ app.post('/login', (req,res) =>{
   const password = req.body.password
 
 
-  const user = getUserByEmail(email)
+  const user = getUserByEmail(email, usersDatabase)
   const userId = user.id
 
   if (!user){
