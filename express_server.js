@@ -89,11 +89,17 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userUrls = urlsForUser(req.cookies.user_id)
+  // const userId = req.cookies.user_id
+  // const hashedPassword = usersDatabase[userId].password
 
   const templateVars = { 
     urls: userUrls,
     user: usersDatabase[req.cookies.user_id]
   };
+
+  // console.log(usersDatabase)
+  // console.log(usersDatabase[userId].password)
+  // console.log(bcrypt.compareSync("1234", hashedPassword))
 
   res.render("urls_index", templateVars);
 });
@@ -116,6 +122,7 @@ app.post("/register", (req, res) => {
   const email = req.body.email
   const password = req.body.password
   const user = getUserByEmail(email)
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
 
   if (!email || !password) {
@@ -135,7 +142,7 @@ app.post("/register", (req, res) => {
   usersDatabase[id] = {
     id: id, 
     email: email, 
-    password: password
+    password: hashedPassword
   }
 
   // storing user_id in cookie
