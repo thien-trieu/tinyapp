@@ -27,16 +27,16 @@ const urlDatabase = {
 };
 
 const usersDatabase = {
-  abc: {
-    id: 'abc',
-    email: 'a@a.com',
-    password: '1234'
-  },
-  aJ48lW: {
-    id: 'aJ48lW',
-    email: 'b@b.com',
-    password: '1234'
-  }
+  // abc: {
+  //   id: 'abc',
+  //   email: 'a@a.com',
+  //   password: '1234'
+  // },
+  // aJ48lW: {
+  //   id: 'aJ48lW',
+  //   email: 'b@b.com',
+  //   password: '1234'
+  // }
 }
 
 //Generate random short URL ID
@@ -89,17 +89,11 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userUrls = urlsForUser(req.cookies.user_id)
-  // const userId = req.cookies.user_id
-  // const hashedPassword = usersDatabase[userId].password
-
+  
   const templateVars = { 
     urls: userUrls,
     user: usersDatabase[req.cookies.user_id]
   };
-
-  // console.log(usersDatabase)
-  // console.log(usersDatabase[userId].password)
-  // console.log(bcrypt.compareSync("1234", hashedPassword))
 
   res.render("urls_index", templateVars);
 });
@@ -250,17 +244,28 @@ app.post('/login', (req,res) =>{
   const email = req.body.email
   const password = req.body.password
 
-  let user = getUserByEmail(email)
+
+  const user = getUserByEmail(email)
+  const userId = user.id
 
   if (!user){
    return res.status(403).send('Error: Email does not exist, please try again!')
   }
 
-  if (user.password !== password){
+  const hashedPassword = usersDatabase[userId].password
+  const passwordWorks = bcrypt.compareSync(password, hashedPassword)
+
+  console.log('pw', password)
+  console.log('pw works:', passwordWorks)
+  console.log('hashed pw:', hashedPassword)
+  console.log('user db:', usersDatabase)
+  console.log('user', user)
+
+  if (!passwordWorks){
     return res.status(403).send('Error: Password is incorrect, please try again!')
   }
 
-  res.cookie('user_id', user.id)
+  res.cookie('user_id', userId)
   res.redirect('/urls/')
 })
 
