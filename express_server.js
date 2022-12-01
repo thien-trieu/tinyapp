@@ -7,11 +7,6 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
-
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -31,6 +26,11 @@ const usersDatabase = {
   abc: {
     id: 'abc',
     email: 'a@a.com',
+    password: '1234'
+  },
+  aJ48lW: {
+    id: 'aJ48lW',
+    email: 'b@b.com',
     password: '1234'
   }
 }
@@ -83,11 +83,13 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const userUrls = urlsForUser(req.cookies.user_id)
+
   const templateVars = { 
-    urls: urlDatabase,
+    urls: userUrls,
     user: usersDatabase[req.cookies.user_id]
   };
-  
+
   res.render("urls_index", templateVars);
 });
 
