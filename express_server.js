@@ -1,6 +1,5 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
-// const cookieParser = require('cookie-parser');
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 
@@ -9,7 +8,6 @@ const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser())
 app.use(morgan("dev"))
 
 app.use(cookieSession({
@@ -37,7 +35,7 @@ const usersDatabase = {
   }
 }
 
-//Generate random short URL ID
+// generate random URL ID / User ID
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 function generateRandomString() {
   let result = "";
@@ -50,7 +48,7 @@ function generateRandomString() {
   return result;
 }
 
-// returns null if user does not exist, returns user object if found
+// returns null if user does not exist, returns user object if found.
 const getUserByEmail = (email, database) => {
   let result = null
   for (let ids in database){
@@ -61,6 +59,7 @@ const getUserByEmail = (email, database) => {
   return result
 }
 
+// returns url database for specific user only. returns undefined if id is not found in urldatabase.
 const urlsForUser = (id) => {
   let obj = {}
  
@@ -92,7 +91,7 @@ app.get("/urls", (req, res) => {
     urls: userUrls,
     user: usersDatabase[req.session.user_id]
   };
-
+  
   console.log('user database:', usersDatabase)
   console.log('url database:', urlDatabase)
 
@@ -100,49 +99,52 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {
-    user: usersDatabase[req.session.user_id]
-  };
-
-  // if user is logged in, redirect user
+  
+  // if user is already logged in, redirect user.
   if (req.session.user_id){
     return res.redirect('/urls')
   }
+  
+  const templateVars = {
+    user: usersDatabase[req.session.user_id]
+  };
 
   res.render("register", templateVars)
 });
 
 app.post("/register", (req, res) => {
   const id = generateRandomString()
+
   const email = req.body.email
   const password = req.body.password
+
   const user = getUserByEmail(email, usersDatabase)
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-
+  // must enter a email and password to register
   if (!email || !password) {
     return res
     .status(400)
-    .send('Error: You did not enter your email/password to register')
+    .send('Unable to complete registration. You did not enter your email/password to register.')
   } 
   
+  // can not register with an existing email
   if (user !== null) {
     return res
     .status(400)
-    .send('Error: Email already exist')
+    .send('Unable to complete registration. The email you entered already exist. Please log in if you are already registered.')
     
   } 
 
-  // adding user info to userDatabase
+  // If registration is successful, add user info to userDatabase.
   usersDatabase[id] = {
     id: id, 
     email: email, 
     password: hashedPassword
   }
 
-  // storing user_id in cookie
+  // store user_id session in cookie and redirect user.
   req.session.user_id = id
-  // res.cookie('user_id', id)
   res.redirect('/urls')
 })
 
