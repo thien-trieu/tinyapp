@@ -22,7 +22,11 @@ const urlDatabase = {
     longURL: "https://www.tsn.ca",
     userID: "aJ48lW",
   },
-  i3BoGr: {
+  je1o6r: {
+    longURL: "https://www.apple.ca",
+    userID: "lbbg1M",
+  },
+  a34k2l: {
     longURL: "https://www.google.ca",
     userID: "lbbg1M",
   }
@@ -80,9 +84,6 @@ app.get("/urls", (req, res) => {
     urls: userUrls,
     user: usersDatabase[req.session.user_id]
   };
-  
-  console.log('user database:', usersDatabase);
-  console.log('url database:', urlDatabase);
 
   res.render("urls_index", templateVars);
 });
@@ -265,37 +266,32 @@ app.post('/login', (req,res) =>{
   res.redirect('/urls/');
 });
 
-app.post('/logout', (req, res) =>{
-  // cookie session is destroyed
-  req.session = null;
-  res.redirect('/login');
-});
 
 app.get("/urls/:id", (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
   const id = req.params.id;
-
+  
   // user must be logged in to view urls
   if (!req.session.user_id) {
     return res.send("You must be logged in to view this page.");
   }
-
+  
   // error message if user tries to view a url that does not exist
   if (!urlDatabase[req.params.id]) {
     return res.send("The Short URL ID does not exist! Please try again.");
   }
-
+  
   // can not view a short url that does not belong to user
   if (userUrls[id] === undefined) {
     return res.send("This short URL does not belong to you.");
   }
-
+  
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
     user: usersDatabase[req.session.user_id]
   };
-
+  
   res.render("urls_show", templateVars);
 });
 
@@ -303,26 +299,31 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
   const id = req.params.id;
-
-    // user must be logged in to view urls
+  
+  // user must be logged in to view urls
   if (!req.session.user_id) {
     return res.send("You must be logged in to view this page :(");
   }
-
+  
   // error message if user tries to view a url that does not exist
   if (!urlDatabase[req.params.id]) {
     return res.send("The Short URL ID does not exist! Please try again.");
   }
-
+  
   // can not view a short url that does not belong to user
   if (userUrls[id] === undefined) {
     return res.send("This short URL does not belong to you :(");
   }
-
+  
   const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
+app.post('/logout', (req, res) =>{
+  // cookie session is destroyed
+  req.session = null;
+  res.redirect('/login');
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

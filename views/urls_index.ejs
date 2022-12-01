@@ -21,8 +21,10 @@
     <main style="margin: 1em;">
 
       <% if (!user) {%>
-
-      To view URLs you must <a href="/register">register</a> or <a href="/login">login</a>.
+      <h4>Welcome to TinyApp!</h4>
+      Create your very own short URLs for your favourite websites.
+      <br/>
+      To start creating URLs or to view your URLs please <a href="/register">register</a> or <a href="/login">login</a>.
         <%} else { %>
 
       <h3>My URLs</h3>
@@ -43,13 +45,13 @@
 
               <td>
                 <form method="GET" action="/urls/<%= id %>">
-                  <button type="submit" class="btn btn-primary">Edit</button>
+                  <button type="submit" class="btn btn-primary btn-sm">Edit</button>
                 </form>
               </td>
 
               <td>
                 <form method="POST" action="/urls/<%= id %>/delete">
-                  <button type="submit" class="btn btn-danger">Delete</button>
+                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>
               </td>
 
