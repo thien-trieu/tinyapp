@@ -225,9 +225,19 @@ app.post('/logout', (req, res) =>{
 
 // shortId path
 app.get("/urls/:id", (req, res) => {
+  const userUrls = urlsForUser(req.cookies.user_id)
+  const id = req.params.id
+
+  if (!req.cookies.user_id) {
+    return res.send("You must be logged in to view this page.")
+  }
 
   if (!urlDatabase[req.params.id]){
     return res.send("The Short URL ID does not exist! Please try again.")
+  }
+
+  if (userUrls[id] === undefined){
+    return res.send("This short URL does not belong to you.")
   }
 
   const templateVars = { 
@@ -241,13 +251,22 @@ app.get("/urls/:id", (req, res) => {
 
 // if you click on shortId on the page, you then get redirected to the longURL 
 app.get("/u/:id", (req, res) => {
+  const userUrls = urlsForUser(req.cookies.user_id)
+  const id = req.params.id
+
+  if (!req.cookies.user_id) {
+    return res.send("You must be logged in to view this page :(")
+  }
 
   if (!urlDatabase[req.params.id]){
     return res.send("The Short URL ID does not exist! Please try again.")
   }
 
-  const longURL = urlDatabase[req.params.id].longURL;
+  if (userUrls[id] === undefined){
+    return res.send("This short URL does not belong to you :(")
+  }
 
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
