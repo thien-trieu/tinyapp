@@ -19,13 +19,12 @@
       </div>
     </div>
       <% if (user) {%>
-        <p>
-          <h6>Logged in as: <%= user.email %> User!</h6> 
-
-          <form method="POST" action="/logout">
-            <button type="submit" class="btn btn-outline-dark">Logout</button>
-          </form>
-        </p>
+          <p class="nav-item nav-link">
+           Logged in as: <%= user.email %> User!
+            <form method="POST" action="/logout">
+              <button type="submit" class="btn btn-outline-dark">Logout</button>
+            </form>
+          </p>
       <% } else {%>
     <div id="navbarNavAltMarkup">
       <div class="navbar-nav">

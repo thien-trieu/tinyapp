@@ -9,8 +9,14 @@ const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser())
+// app.use(cookieParser())
 app.use(morgan("dev"))
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['whatismysecretkeygoingtobe', 'imnotsurewhatitsgoingtobe']
+
+}));
 
 const urlDatabase = {
   b6UTxQ: {
@@ -89,11 +95,11 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const userUrls = urlsForUser(req.cookies.user_id)
+  const userUrls = urlsForUser(req.session.user_id)
   
   const templateVars = { 
     urls: userUrls,
-    user: usersDatabase[req.cookies.user_id]
+    user: usersDatabase[req.session.user_id]
   };
 
   res.render("urls_index", templateVars);
@@ -101,11 +107,11 @@ app.get("/urls", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = {
-    user: usersDatabase[req.cookies.user_id]
+    user: usersDatabase[req.session.user_id]
   };
 
   // if user is logged in, redirect user
-  if (req.cookies.user_id){
+  if (req.session.user_id){
     return res.redirect('/urls')
   }
 
@@ -141,17 +147,18 @@ app.post("/register", (req, res) => {
   }
 
   // storing user_id in cookie
-  res.cookie('user_id', id)
+  req.session.user_id = id
+  // res.cookie('user_id', id)
   res.redirect('/urls')
 })
 
 app.get("/login", (req, res) => {
   const templateVars = {
-    user: usersDatabase[req.cookies.user_id]
+    user: usersDatabase[req.session.user_id]
   };
 
   // if user is logged in, redirect user
-  if (req.cookies.user_id) {
+  if (req.session.user_id) {
     return res.redirect('/urls')
   }
   
@@ -161,10 +168,10 @@ app.get("/login", (req, res) => {
 // where form is for creating new shortURL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    user: usersDatabase[req.cookies.user_id]
+    user: usersDatabase[req.session.user_id]
   };
 
-  if (!req.cookies.user_id){
+  if (!req.session.user_id){
     return res.redirect('/login')
   }
 
@@ -176,10 +183,10 @@ app.post("/urls", (req, res) => {
   const shortId = generateRandomString();
   urlDatabase[shortId] = {
     longURL: req.body.longURL,
-    userID: req.cookies.user_id
+    userID: req.session.user_id
   };
 
-  if (!req.cookies.user_id){
+  if (!req.session.user_id){
     return res.send('Sorry you are not logged in. Please login to create new short URL')
   }
 
@@ -188,9 +195,9 @@ app.post("/urls", (req, res) => {
 
 
 app.post('/urls/:id/delete', (req, res) => {
-  const userUrls = urlsForUser(req.cookies.user_id)
   const id = req.params.id
-  const userId = req.cookies.user_id
+  const userId = req.session.user_id
+  const userUrls = urlsForUser(req.session.user_id)
 
   // should return a relevant error message if id does not exist
   if (urlDatabase[id] === undefined){
@@ -198,7 +205,7 @@ app.post('/urls/:id/delete', (req, res) => {
   }
 
   // should return a relevant error message if the user is not logged in
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.send("Sorry, you can not delete a URL if you are not logged in :(")
   }
 
@@ -213,9 +220,9 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // edit shortURL with a different longURL
 app.post('/urls/:id', (req, res) => {
-  const userUrls = urlsForUser(req.cookies.user_id)
   const id = req.params.id
-  const userId = req.cookies.user_id
+  const userId = req.session.user_id
+  const userUrls = urlsForUser(req.session.user_id)
 
   // should return a relevant error message if id does not exist
   if (urlDatabase[id] === undefined){
@@ -223,7 +230,7 @@ app.post('/urls/:id', (req, res) => {
   }
 
   // should return a relevant error message if the user is not logged in
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.send("Sorry, you can not edit a URL if you are not logged in")
   }
 
@@ -266,21 +273,24 @@ app.post('/login', (req,res) =>{
     return res.status(403).send('Error: Password is incorrect, please try again!')
   }
 
-  res.cookie('user_id', userId)
+  req.session.user_id = userId
+  // res.cookie('user_id', userId)
   res.redirect('/urls/')
 })
 
 app.post('/logout', (req, res) =>{
-  res.clearCookie('user_id')
+
+  req.session = null
+  // res.clearCookie('user_id')
   res.redirect('/login')
 })
 
 // shortId path
 app.get("/urls/:id", (req, res) => {
-  const userUrls = urlsForUser(req.cookies.user_id)
+  const userUrls = urlsForUser(req.session.user_id)
   const id = req.params.id
 
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.send("You must be logged in to view this page.")
   }
 
@@ -295,7 +305,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id].longURL,
-    user: usersDatabase[req.cookies.user_id]
+    user: usersDatabase[req.session.user_id]
    };
 
   res.render("urls_show", templateVars);
@@ -303,10 +313,10 @@ app.get("/urls/:id", (req, res) => {
 
 // if you click on shortId on the page, you then get redirected to the longURL 
 app.get("/u/:id", (req, res) => {
-  const userUrls = urlsForUser(req.cookies.user_id)
+  const userUrls = urlsForUser(req.session.user_id)
   const id = req.params.id
 
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.send("You must be logged in to view this page :(")
   }
 
