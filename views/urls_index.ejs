@@ -19,6 +19,12 @@
   <body>
     <%- include('partials/_header') %>
     <main style="margin: 1em;">
+
+      <% if (!user) {%>
+
+      To view URLs you must <a href="/register">register</a> or <a href="/login">login</a>.
+        <%} else { %>
+
       <h3>My URLs</h3>
       <table class="table">
         <thead>
@@ -33,7 +39,7 @@
           <% for (let id in urls) { %>
             <tr>
               <td><%= id %></td>
-              <td><%= urls[id] %></td>
+              <td><%= urls[id].longURL %></td>
 
               <td>
                 <form method="GET" action="/urls/<%= id %>">
@@ -48,6 +54,8 @@
               </td>
 
             </tr>
+          
+          <% } %>
           <% } %>
         </tbody>
       </table>

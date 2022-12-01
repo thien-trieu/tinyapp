@@ -7,9 +7,20 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const usersDatabase = {
@@ -61,6 +72,9 @@ app.get("/urls", (req, res) => {
     user: usersDatabase[req.cookies.user_id]
   };
 
+  // console.log('urlDataBase', urlDatabase)
+  // console.log('longURL', req.body.longURL, 'userID', req.cookies.user_id)
+
   res.render("urls_index", templateVars);
 });
 
@@ -99,10 +113,10 @@ app.post("/register", (req, res) => {
 
   // adding user info to userDatabase
   usersDatabase[id] = {id: id, email: email, password: password}
+
   // storing user_id in cookie
   res.cookie('user_id', id)
   res.redirect('/urls')
-  
 })
 
 app.get("/login", (req, res) => {
@@ -115,9 +129,9 @@ app.get("/login", (req, res) => {
     return res.redirect('/urls')
   }
   
-
   res.render("login", templateVars);
 })
+
 // where form is for creating new shortURL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
@@ -134,7 +148,10 @@ app.get("/urls/new", (req, res) => {
 // submit form for new shortURL then get redirected to /urls/shortId path
 app.post("/urls", (req, res) => {
   const shortId = generateRandomString();
-  urlDatabase[shortId] = req.body.longURL;
+  urlDatabase[shortId] = {
+    longURL: req.body.longURL,
+    userID: req.cookies.user_id
+  };
 
   if (!req.cookies.user_id){
     return res.send('Sorry you are not logged in. Please login to create new short URL')
@@ -152,7 +169,13 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // edit shortURL with a different longURL
 app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+
+  // Neeed think more
+  urlDatabase[req.params.id] = {
+    longURL: req.body.longURL,
+    userID: req.cookies.user_id
+  };
+
   res.redirect("/urls/");
 });
 
@@ -188,26 +211,27 @@ app.post('/logout', (req, res) =>{
 // shortId path
 app.get("/urls/:id", (req, res) => {
 
-  const templateVars = { 
-    id: req.params.id, 
-    longURL: urlDatabase[req.params.id],
-    user: usersDatabase[req.cookies.user_id]
-   };
-
   if (!urlDatabase[req.params.id]){
     return res.send("The Short URL ID does not exist! Please try again.")
   }
+
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id].longURL,
+    user: usersDatabase[req.cookies.user_id]
+   };
 
   res.render("urls_show", templateVars);
 });
 
 // if you click on shortId on the page, you then get redirected to the longURL 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
 
   if (!urlDatabase[req.params.id]){
     return res.send("The Short URL ID does not exist! Please try again.")
   }
+
+  const longURL = urlDatabase[req.params.id].longURL;
 
   res.redirect(longURL);
 });
