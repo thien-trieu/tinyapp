@@ -8,7 +8,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 Create and Edit your short URLs
 
-!["Create New URL"](./docs/url-edit.PNG)
+!["Edit a URL"](https://github.com/thien-trieu/tinyapp/blob/main/docs/url-edit.PNG)
 ## Dependencies
 
 - Node.js
