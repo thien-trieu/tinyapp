@@ -19,7 +19,11 @@ const urlDatabase = {
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "abc",
+  },
+  h4lkl5: {
+    longURL: "https://www.amazon.ca",
+    userID: "abc",
   },
 };
 
@@ -54,6 +58,18 @@ const getUserByEmail = (email) => {
   return result
 }
 
+const urlsForUser = (id) => {
+  let obj = {}
+ 
+   for (let ids in urlDatabase){
+     if (id === urlDatabase[ids].userID){
+       obj[ids] = urlDatabase[ids]
+     }
+   }
+   return obj
+ }
+ 
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -71,10 +87,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: usersDatabase[req.cookies.user_id]
   };
-
-  // console.log('urlDataBase', urlDatabase)
-  // console.log('longURL', req.body.longURL, 'userID', req.cookies.user_id)
-
+  
   res.render("urls_index", templateVars);
 });
 
