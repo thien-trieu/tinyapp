@@ -4,7 +4,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Welcome Page"](./docs/urls-page-welcome.PNG)
+!["Welcome Page"](https://github.com/thien-trieu/tinyapp/blob/main/docs/urls-page-welcome.PNG?raw=true)
 
 Create and Edit your short URLs
 
