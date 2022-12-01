@@ -151,7 +151,6 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
-// where form is for creating new shortURL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: usersDatabase[req.session.user_id]
@@ -180,7 +179,6 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortId}`);
 });
 
-
 app.post('/urls/:id/delete', (req, res) => {
   const id = req.params.id;
   const userId = req.session.user_id;
@@ -205,7 +203,6 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect("/urls/");
 });
 
-// edit shortURL with a different longURL
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id;
   const userId = req.session.user_id;
@@ -233,7 +230,6 @@ app.post('/urls/:id', (req, res) => {
 
   res.redirect("/urls/");
 });
-
 
 app.post('/login', (req,res) =>{
   const email = req.body.email;
@@ -266,7 +262,6 @@ app.post('/login', (req,res) =>{
   res.redirect('/urls/');
 });
 
-
 app.get("/urls/:id", (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
   const id = req.params.id;
@@ -294,7 +289,6 @@ app.get("/urls/:id", (req, res) => {
   
   res.render("urls_show", templateVars);
 });
-
 
 app.get("/u/:id", (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
